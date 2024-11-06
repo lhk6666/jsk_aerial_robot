@@ -443,6 +443,22 @@
       <inertia ixx="0.0168128557" ixy="-0.0002296769" ixz="-0.0002945293" iyy="0.063009565" iyz="-4.18731e-05" izz="0.0716547275"/>
     </inertial>
   </link>
+  <link name="shell_link">
+    <visual>
+      <origin xyz="0 0 0.8" rpy="0 0 0"/> <!-- 设置相对于shell_link的原点位置 -->
+      <geometry>
+        <box size="0.6 0.6 0.2"/> <!-- 设置外壳的大小 -->
+      </geometry>
+      <material>
+        <color rgba="0.8 0.0 0.0 1.0"/> <!-- 设置外壳颜色 -->
+      </material>
+    </visual>
+  </link>
+  <joint name="shell_joint" type="fixed">
+    <parent link="trunk"/>
+    <child link="shell_link"/>
+    <origin xyz="0 0 0.1" rpy="0 0 0"/> <!-- 设置shell_link相对于base_link的位置 -->
+  </joint>
   <joint name="imu_joint" type="fixed">
     <parent link="trunk"/>
     <child link="imu_link"/>

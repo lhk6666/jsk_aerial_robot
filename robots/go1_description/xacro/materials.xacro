@@ -31,6 +31,7 @@
 
     <material name="red">
         <color rgba="0.8 0.0 0.0 1.0"/>
+        <ambient rgba="0.4 0.0 0.0 1.0"/>
     </material>
 
     <material name="white">
