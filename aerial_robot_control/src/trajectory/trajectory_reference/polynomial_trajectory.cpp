@@ -25,7 +25,7 @@ PolynomialTrajectory<PolyType>::PolynomialTrajectory(
   yaw_.scale(start_state_.t, duration_);
 
   addStateConstraint(start_state_);
-  addStateConstraint(end_state_);
+  addStateConstraint(end_state_, -1, &start_state_);
 
   x_.solve();
   y_.solve();
@@ -97,14 +97,13 @@ PolynomialTrajectory<PolyType>::PolynomialTrajectory(
 }
 
 template<class PolyType>
-bool PolynomialTrajectory<PolyType>::addStateConstraint(const QuadState& state, int ord) {
+bool PolynomialTrajectory<PolyType>::addStateConstraint(const QuadState& state, int ord, const QuadState* start_state) {
   if (!std::isfinite(state.t)) return false;
   if (ord > 4) return false;
 
-  if (ord < 0)  ord = 4;
+  if (ord < 0) ord = 4;
 
-  Matrix<> constraints = Matrix<>::Constant(3, ord+1, NAN);
-
+  Matrix<> constraints = Matrix<>::Constant(3, ord + 1, NAN);
   constraints.col(0) = state.p;
   if (ord > 0) constraints.col(1) = state.v;
   if (ord > 1) constraints.col(2) = state.a;
@@ -115,13 +114,19 @@ bool PolynomialTrajectory<PolyType>::addStateConstraint(const QuadState& state, 
   y_.addConstraint(state.t, constraints.row(1).transpose());
   z_.addConstraint(state.t, constraints.row(2).transpose());
 
-  // ToDo: Yaw relative to initial yaw.
-  const Scalar yaw_angle = state.getYaw();
+  Scalar yaw_angle = state.getYaw();
+  if (start_state && std::isfinite(start_state->getYaw())) {
+    Scalar yaw_diff = yaw_angle - start_state->getYaw();
+    if (yaw_diff > M_PI) yaw_angle -= 2 * M_PI;  
+    else if (yaw_diff < -M_PI) yaw_angle += 2 * M_PI; 
+  }
+
   if (std::isfinite(yaw_angle))
     yaw_.addConstraint(state.t, Vector<3>(yaw_angle, state.w.z(), 0));
 
   return true;
 }
+
 
 template<class PolyType>
 Setpoint PolynomialTrajectory<PolyType>::getSetpoint(const QuadState& state,

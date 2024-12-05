@@ -1002,8 +1002,15 @@ void BaseNavigator::generateNewTrajectory(geometry_msgs::PoseStamped pose)
     }
 
   double du_tran = (end_state.p - start_state.p).norm() / trajectory_mean_vel_;
-  double du_rot = fabs(end_state.getYaw() - start_state.getYaw()) / trajectory_mean_yaw_rate_;
+  double yaw_diff = end_state.getYaw() - start_state.getYaw();
+  if (yaw_diff > M_PI) {
+    yaw_diff -= 2 * M_PI;
+  } else if (yaw_diff < -M_PI) {
+    yaw_diff += 2 * M_PI;
+  }
+  double du_rot = fabs(yaw_diff) / trajectory_mean_yaw_rate_;
   double du = std::max(du_tran, trajectory_min_du_);
+  
   if (!enable_latch_yaw_trajectory_)
     {
       du = std::max(du_rot, du);

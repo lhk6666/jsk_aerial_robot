@@ -27,7 +27,7 @@ class PolynomialTrajectory : public ReferenceBase {
   virtual Setpoint getStartSetpoint() override final;
   virtual Setpoint getEndSetpoint() override final;
 
-  bool addStateConstraint(const QuadState& state, int ord = -1);
+  bool addStateConstraint(const QuadState& state, int ord = -1, const QuadState* start_state = nullptr);
   bool solved() const;
   bool valid() const override;
 
