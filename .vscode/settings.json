@@ -1,10 +1,20 @@
 {
     "python.autoComplete.extraPaths": [
         "/home/dragon_llm/ros/jsk_aerial_robot_ws/devel/lib/python3/dist-packages",
+<<<<<<< HEAD
         "/opt/ros/noetic/lib/python3/dist-packages"
     ],
     "python.analysis.extraPaths": [
         "/home/dragon_llm/ros/jsk_aerial_robot_ws/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages"
+=======
+        "/home/dragon_llm/ros/llm_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/one/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/dragon_llm/ros/jsk_aerial_robot_ws/devel/lib/python3/dist-packages",
+        "/home/dragon_llm/ros/llm_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/one/lib/python3/dist-packages"
+>>>>>>> 2c9fc4bf60e6e2ebe5e1034ced1c4dd302d4eb19
     ]
 }
