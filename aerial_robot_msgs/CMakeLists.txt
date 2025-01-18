@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(aerial_robot_msgs)
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ## Find catkin and any catkin packages
 find_package(catkin REQUIRED COMPONENTS
   std_msgs

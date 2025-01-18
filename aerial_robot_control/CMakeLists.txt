@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(aerial_robot_control)
-
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_compile_options(-std=c++17)
 
 find_package(catkin REQUIRED COMPONENTS

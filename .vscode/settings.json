@@ -1,0 +1,12 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/dragon_llm/ros/jsk_aerial_robot_ws/devel/lib/python3/dist-packages",
+        "/home/dragon_llm/ros/llm_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/one/lib/python3/dist-packages"
+    ],
+    "python.analysis.extraPaths": [
+        "/home/dragon_llm/ros/jsk_aerial_robot_ws/devel/lib/python3/dist-packages",
+        "/home/dragon_llm/ros/llm_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/one/lib/python3/dist-packages"
+    ]
+}
