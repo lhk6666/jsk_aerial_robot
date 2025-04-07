@@ -101,6 +101,7 @@ namespace aerial_robot_navigation
     inline void setTargetYaw(float value) { target_rpy_.setZ(value); }
     inline void addTargetYaw(float value) { setTargetYaw(angles::normalize_angle(target_rpy_.z() + value)); }
     inline void setTargetOmegaZ(float value) { target_omega_.setZ(value); }
+    inline void setTargetRPY(tf::Vector3 value) { target_rpy_ = value; }
     inline void setTargetAngAcc(tf::Vector3 acc) { target_ang_acc_ = acc; }
     inline void setTargetAngAcc(double x, double y, double z) { setTargetAngAcc(tf::Vector3(x, y, z)); }
     inline void setTargetZeroAngAcc() { setTargetAngAcc(tf::Vector3(0,0,0)); }
@@ -270,6 +271,8 @@ namespace aerial_robot_navigation
     bool lock_teleop_;
     ros::Time force_landing_start_time_;
 
+    double takeoff_xy_pos_tolerance_;
+    double takeoff_z_pos_tolerance_;
     double hover_convergent_start_time_;
     double hover_convergent_duration_;
     double land_check_start_time_;
@@ -365,6 +368,23 @@ namespace aerial_robot_navigation
     {
       if(getNaviState() == TAKEOFF_STATE) return;
 
+      /* check xy position error in initial state */
+      double pos_x_error = getTargetPos().x() - estimator_->getPos(Frame::COG, estimate_mode_).x();
+      double pos_y_error = getTargetPos().y() - estimator_->getPos(Frame::COG, estimate_mode_).y();
+      double pos_xy_error_dist = std::sqrt(pos_x_error * pos_x_error + pos_y_error * pos_y_error);
+      if(pos_xy_error_dist > takeoff_xy_pos_tolerance_)
+        {
+          ROS_ERROR_STREAM("initial xy error distance: " << pos_xy_error_dist << " is larger than threshold " << takeoff_xy_pos_tolerance_ << ". switch back to ARM_OFF_STATE");
+          setNaviState(STOP_STATE);
+        }
+
+      /* check difference in height between arming and takeoff */
+      if(fabs(init_height_ - estimator_->getPos(Frame::COG, estimate_mode_).z()) > takeoff_z_pos_tolerance_)
+        {
+          ROS_ERROR_STREAM("difference between init height and current height: " << fabs(init_height_ - estimator_->getPos(Frame::COG, estimate_mode_).z()) << " is larger than threshold " << takeoff_z_pos_tolerance_ << ". switch back to ARM_OFF_STATE");
+          setNaviState(STOP_STATE);
+        }
+
       if(getNaviState() == ARM_ON_STATE)
         {
           setNaviState(TAKEOFF_STATE);
@@ -407,12 +427,15 @@ namespace aerial_robot_navigation
       setInitHeight(estimator_->getPos(Frame::COG, estimate_mode_).z());
       setTargetYawFromCurrentState();
 
-      ROS_INFO_STREAM("init height for takeoff: " << init_height_);
+      ROS_INFO_STREAM("init height for takeoff: " << init_height_ << ", target height: " << getTargetPos().z());
+      ROS_INFO_STREAM("target xy pos: " << "[" << getTargetPos().x() << ", " << getTargetPos().y() << "]");
 
       ROS_INFO("Start state");
     }
 
     virtual void updateLandCommand();
+
+    void updatePoseFromTrajectory();
 
     tf::Vector3 frameConversion(tf::Vector3 origin_val,  tf::Matrix3x3 r)
     {
@@ -557,7 +580,7 @@ namespace aerial_robot_navigation
 
     void setTargetYawFromCurrentState()
     {
-      double yaw = estimator_->getState(State::YAW_COG, estimate_mode_)[0];
+      double yaw = estimator_->getEuler(Frame::COG, estimate_mode_).z();
       setTargetYaw(yaw);
 
       // set the velocty to zero
